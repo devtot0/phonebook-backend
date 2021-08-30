@@ -37,8 +37,14 @@ app.get("/api/persons", (request, response) => {
 app.get("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
   const personToView = persons.find((person) => person.id === id);
-  const personInfo = `<h2>${personToView.name}</h2><h3>Phone number: ${personToView.number}</h3>`;
-  response.send(personInfo);
+
+  if (personToView) {
+    const personInfo = `<h2>${personToView.name}</h2><h3>Phone number: ${personToView.number}</h3>`;
+    response.send(personInfo);
+  } else {
+    console.log("test");
+    response.status(404).end();
+  }
 });
 
 app.get("/info", (request, response) => {
