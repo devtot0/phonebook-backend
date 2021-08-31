@@ -3,6 +3,8 @@ const express = require("express");
 
 const app = express();
 
+app.use(express.json());
+
 let persons = [
   {
     id: 1,
@@ -26,6 +28,12 @@ let persons = [
   },
 ];
 
+const RANDOM_ID_SEED = 143234452.783;
+
+const generateId = (max) => {
+  return Math.floor(Math.random() * max);
+};
+
 app.get("/", (request, response) => {
   response.send("<h1>Phonebook server</h1>");
 });
@@ -42,7 +50,6 @@ app.get("/api/persons/:id", (request, response) => {
     const personInfo = `<h2>${personToView.name}</h2><h3>Phone number: ${personToView.number}</h3>`;
     response.send(personInfo);
   } else {
-    console.log("test");
     response.status(404).end();
   }
 });
@@ -52,6 +59,22 @@ app.delete("/api/persons/:id", (request, response) => {
   persons = persons.filter((person) => person.id !== id);
   response.json(persons);
   response.status(204).end();
+});
+
+app.post("/api/persons", (request, response) => {
+  const body = request.body;
+  if (!body.number) {
+    return response.status(404).json({ error: "number field cannot be empty" });
+  } else if (persons.map((person) => person.name).includes(body.name)) {
+    return response.status(400).json({ error: "name must be unique" });
+  }
+  const personObject = {
+    id: generateId(RANDOM_ID_SEED),
+    name: body.name,
+    number: body.number,
+  };
+  persons = persons.concat(personObject);
+  response.json(personObject);
 });
 
 app.get("/info", (request, response) => {
