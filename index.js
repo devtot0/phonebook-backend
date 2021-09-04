@@ -65,12 +65,20 @@ app.delete("/api/persons/:id", (request, response) => {
   response.status(204).end();
 });
 
+app.put("/api/persons/:id", (request, response) => {
+  const body = request.body;
+  if (persons.map((person) => person.name).includes(body.name)) {
+    return response.status(400).json({ error: "name must be unique" });
+  }
+  const personObject = { ...body, id: body.id };
+  persons = persons.concat(personObject);
+  response.json(personObject);
+});
+
 app.post("/api/persons", (request, response) => {
   const body = request.body;
   if (!body.number) {
     return response.status(404).json({ error: "number field cannot be empty" });
-  } else if (persons.map((person) => person.name).includes(body.name)) {
-    return response.status(400).json({ error: "name must be unique" });
   }
   const personObject = {
     id: generateId(RANDOM_ID_SEED),
