@@ -1,7 +1,5 @@
-const mongoose = require("mongoose");
 require("dotenv").config();
-
-const password = process.argv[2];
+const mongoose = require("mongoose");
 
 const url = process.env.MONGO_URI;
 

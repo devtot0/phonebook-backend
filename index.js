@@ -1,8 +1,10 @@
+require("dotenv").config();
 const { response, request } = require("express");
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
-require("dotenv").config();
+
+const Person = require("./models/Person");
 
 const app = express();
 
@@ -44,7 +46,9 @@ app.get("/", (request, response) => {
 });
 
 app.get("/api/persons", (request, response) => {
-  response.json(persons);
+  Person.find({}).then((notes) => {
+    response.json(notes);
+  });
 });
 
 app.get("/api/persons/:id", (request, response) => {
@@ -81,13 +85,15 @@ app.post("/api/persons", (request, response) => {
   if (!body.number) {
     return response.status(404).json({ error: "number field cannot be empty" });
   }
-  const personObject = {
+  const person = new Person({
     id: generateId(RANDOM_ID_SEED),
     name: body.name,
     number: body.number,
-  };
-  persons = persons.concat(personObject);
-  response.json(personObject);
+  });
+
+  person.save().then((savedPerson) => {
+    response.json(savedPerson);
+  });
 });
 
 app.get("/info", (request, response) => {
