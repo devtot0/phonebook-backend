@@ -63,15 +63,16 @@ app.get("/api/persons", (request, response) => {
 });
 
 app.get("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  const personToView = persons.find((person) => person.id === id);
-
-  if (personToView) {
-    const personInfo = `<h2>${personToView.name}</h2><h3>Phone number: ${personToView.number}</h3>`;
-    response.send(personInfo);
-  } else {
-    response.status(404).end();
-  }
+  const personId = String(request.params.id);
+  Person.findById(personId)
+    .then((result) => {
+      console.log(result);
+      const personInfo = `<h2>${result.name}</h2><h3>Phone number: ${result.number}</h3>`;
+      response.send(personInfo);
+    })
+    .then((error) => {
+      response.status(404).end();
+    });
 });
 
 app.delete("/api/persons/:id", (request, response, next) => {
@@ -119,8 +120,11 @@ app.post("/api/persons", (request, response) => {
 });
 
 app.get("/info", (request, response) => {
-  response.send(`Phonebook has info for ${persons.length} people
-     <br> <br>${Date()}`);
+  Person.find({}).then((result) => {
+    console.log(result);
+    response.send(`Phonebook has info for ${result.length} people
+    <br> <br>${Date()}`);
+  });
 });
 
 const PORT = process.env.PORT || 3001;
