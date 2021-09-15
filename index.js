@@ -63,21 +63,32 @@ app.get("/api/persons/:id", (request, response) => {
   }
 });
 
-app.delete("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  persons = persons.filter((person) => person.id !== id);
-  response.json(persons);
-  response.status(204).end();
+app.delete("/api/persons/:id", (request, response, next) => {
+  console.log(typeof request.params.id);
+  const personId = String(request.params.id);
+  Person.findByIdAndDelete(personId)
+    .then((result) => {
+      response.status(204).end();
+    })
+    .catch((error) => {
+      next(error);
+    });
 });
 
 app.put("/api/persons/:id", (request, response) => {
   const body = request.body;
+  const personId = request.params.id;
+  const updatedPerson = { ...body, number: body.number };
+  Person.findByIdAndUpdate(personId, updatedPerson, { new: true })
+    .then((result) => {
+      response.json(updatedPerson);
+    })
+    .catch((error) => {
+      next(error);
+    });
   if (persons.map((person) => person.name).includes(body.name)) {
     return response.status(400).json({ error: "name must be unique" });
   }
-  const personObject = { ...body, id: body.id };
-  persons = persons.concat(personObject);
-  response.json(personObject);
 });
 
 app.post("/api/persons", (request, response) => {
