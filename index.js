@@ -11,6 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.static("build"));
 app.use(express.json());
+app.use(errorHandler);
 
 let persons = [
   {
@@ -34,6 +35,16 @@ let persons = [
     number: "39-23-6423122",
   },
 ];
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  }
+
+  next(error);
+};
 
 const RANDOM_ID_SEED = 143234452.783;
 
